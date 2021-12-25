@@ -1,5 +1,15 @@
 import React from "react";
-import { Button, Layout, Menu, Row, Space, Divider, Typography } from "antd";
+import {
+  Button,
+  Layout,
+  Menu,
+  Row,
+  Space,
+  Divider,
+  Typography,
+  Upload,
+  message,
+} from "antd";
 import "./App.css";
 import {
   FolderOutlined,
@@ -7,6 +17,7 @@ import {
   AuditOutlined,
   BarcodeOutlined,
   HddOutlined,
+  UploadOutlined,
 } from "@ant-design/icons";
 import { useWorker } from "react-hooks-worker";
 
@@ -14,20 +25,54 @@ const { Title } = Typography;
 const { Header, Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
 
-const createWorker = () =>
-  new Worker(new URL("./slow_fib.worker", import.meta.url));
+const readFile = ( f ) => (new Promise((resolve, reject)=>{
 
-const CalcFib = ({ count }) => {
-  const { result, error } = useWorker(createWorker, { i: count }); // now the input is wrapper in an object
-  if (error) return <div>Error: {error}</div>;
-  return <div>Result: {result}</div>;
-};
+  let fileReader = new FileReader()
+
+  fileReader.onload = (evt) => {
+    resolve(evt.target.result)
+  }
+
+  fileReader.readAsArrayBuffer(f)
+  
+}));
 
 const App = () => {
-  const { result, error } = useWorker(createWorker, { a: 1 });
+  // const { result, error } = useWorker(createWorker, { a: 1 });
+
+  const startWorkerProcess = async (gzFile) => {
+    let fileData = await readFile(gzFile)
+    console.log(fileData)
+    // 创建 worker
+    let worker = new Worker(new URL("./lib/gzip_analyze.worker", import.meta.url));
+    worker.onmessage = (e) => {
+       console.log('message from worker')
+       console.log(e)
+       worker.terminate()
+    }
+    worker.postMessage({type:'OPEN_FILE', payload:fileData}, [fileData])
+  }
+
+  const uploadProps = {
+    showUploadList:false,
+    beforeUpload: (file) => {
+      console.log(file.type);
+      if (file.type !== "application/x-gzip") {
+        message.error(`${file.name} is not a gzip file`);
+      }
+      return file.type === "application/x-gzip" ? false : Upload.LIST_IGNORE;
+      //return Upload.LIST_IGNORE
+    },
+    onChange: (info) => {
+      //console.log(info.fileList);
+      startWorkerProcess(info.file);
+    },
+  };
+
+  
+
   return (
     <Layout>
-      <CalcFib count={10}/>
       <Sider
         width="240"
         style={{
@@ -46,7 +91,9 @@ const App = () => {
         ></Divider>
         <Row justify="center">
           <Space value="30">
-            <Button type="primary">Open *.gz File</Button>
+            <Upload {...uploadProps}>
+              <Button icon={<UploadOutlined />}>Open *.gz file</Button>
+            </Upload>
           </Space>
         </Row>
         <Divider

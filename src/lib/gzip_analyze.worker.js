@@ -1,8 +1,6 @@
-import { exposeWorker } from 'react-hooks-worker'
+import wolfFunc from './func_in_work'
 
-const myWorker = (a) => {
-    console.log(a)
-    return 114
+onmessage = (e) => {
+    wolfFunc(e)
+    postMessage('wolf wolf wolf')
 }
-
-exposeWorker(myWorker)
