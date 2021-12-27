@@ -1,3 +1,5 @@
+import fstream from "./fstream"
+
 const MAX_BITS = 15
 
 const _buildHuffmanTree = (tree, nodes) => {
