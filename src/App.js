@@ -45,11 +45,11 @@ const App = () => {
     console.log(fileData)
     // 创建 worker
     let worker = new Worker(new URL("./lib/gzip_analyze.worker", import.meta.url));
-    worker.onmessage = (e) => {
-       console.log('message from worker')
-       console.log(e)
-       worker.terminate()
-    }
+    // worker.onmessage = (e) => {
+    //    console.log('message from worker')
+    //    console.log(e)
+    //    //worker.terminate()
+    // }
     worker.postMessage({type:'OPEN_FILE', payload:fileData}, [fileData])
   }
 

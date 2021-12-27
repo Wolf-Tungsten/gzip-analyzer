@@ -1,6 +1,12 @@
-import wolfFunc from './func_in_work'
+import { inflate } from './inflate'
 
 onmessage = (e) => {
-    wolfFunc(e)
-    postMessage('wolf wolf wolf')
+
+    if(e.data.type === 'OPEN_FILE'){
+        postMessage({
+            type:'INFLATE_RESULT',
+            payload:inflate(e.data.payload)
+        })
+    }
+
 }

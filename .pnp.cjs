@@ -40,8 +40,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@testing-library/react", "virtual:35a686baa33830a0bd1dd937bb41b0cc3881548ee6a430c283e6dec3f8d73ed9991286f6466b91708e97729f0b399e01af9a9688bf541c60f588552548a67b87#npm:12.1.2"],
             ["@testing-library/user-event", "virtual:35a686baa33830a0bd1dd937bb41b0cc3881548ee6a430c283e6dec3f8d73ed9991286f6466b91708e97729f0b399e01af9a9688bf541c60f588552548a67b87#npm:13.5.0"],
             ["antd", "virtual:35a686baa33830a0bd1dd937bb41b0cc3881548ee6a430c283e6dec3f8d73ed9991286f6466b91708e97729f0b399e01af9a9688bf541c60f588552548a67b87#npm:4.17.4"],
+            ["big-integer", "npm:1.6.51"],
             ["eslint", "npm:8.5.0"],
             ["eslint-config-react-app", "virtual:35a686baa33830a0bd1dd937bb41b0cc3881548ee6a430c283e6dec3f8d73ed9991286f6466b91708e97729f0b399e01af9a9688bf541c60f588552548a67b87#npm:7.0.0"],
+            ["moment", "npm:2.29.1"],
             ["react", "npm:17.0.2"],
             ["react-dom", "virtual:35a686baa33830a0bd1dd937bb41b0cc3881548ee6a430c283e6dec3f8d73ed9991286f6466b91708e97729f0b399e01af9a9688bf541c60f588552548a67b87#npm:17.0.2"],
             ["react-hooks-worker", "virtual:35a686baa33830a0bd1dd937bb41b0cc3881548ee6a430c283e6dec3f8d73ed9991286f6466b91708e97729f0b399e01af9a9688bf541c60f588552548a67b87#npm:1.0.3"],
@@ -5369,6 +5371,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD",
         }]
       ]],
+      ["big-integer", [
+        ["npm:1.6.51", {
+          "packageLocation": "./.yarn/cache/big-integer-npm-1.6.51-1a244d8e1f-3d444173d1.zip/node_modules/big-integer/",
+          "packageDependencies": [
+            ["big-integer", "npm:1.6.51"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
       ["big.js", [
         ["npm:5.2.2", {
           "packageLocation": "./.yarn/cache/big.js-npm-5.2.2-e147c30820-b89b6e8419.zip/node_modules/big.js/",
@@ -8542,8 +8553,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@testing-library/react", "virtual:35a686baa33830a0bd1dd937bb41b0cc3881548ee6a430c283e6dec3f8d73ed9991286f6466b91708e97729f0b399e01af9a9688bf541c60f588552548a67b87#npm:12.1.2"],
             ["@testing-library/user-event", "virtual:35a686baa33830a0bd1dd937bb41b0cc3881548ee6a430c283e6dec3f8d73ed9991286f6466b91708e97729f0b399e01af9a9688bf541c60f588552548a67b87#npm:13.5.0"],
             ["antd", "virtual:35a686baa33830a0bd1dd937bb41b0cc3881548ee6a430c283e6dec3f8d73ed9991286f6466b91708e97729f0b399e01af9a9688bf541c60f588552548a67b87#npm:4.17.4"],
+            ["big-integer", "npm:1.6.51"],
             ["eslint", "npm:8.5.0"],
             ["eslint-config-react-app", "virtual:35a686baa33830a0bd1dd937bb41b0cc3881548ee6a430c283e6dec3f8d73ed9991286f6466b91708e97729f0b399e01af9a9688bf541c60f588552548a67b87#npm:7.0.0"],
+            ["moment", "npm:2.29.1"],
             ["react", "npm:17.0.2"],
             ["react-dom", "virtual:35a686baa33830a0bd1dd937bb41b0cc3881548ee6a430c283e6dec3f8d73ed9991286f6466b91708e97729f0b399e01af9a9688bf541c60f588552548a67b87#npm:17.0.2"],
             ["react-hooks-worker", "virtual:35a686baa33830a0bd1dd937bb41b0cc3881548ee6a430c283e6dec3f8d73ed9991286f6466b91708e97729f0b399e01af9a9688bf541c60f588552548a67b87#npm:1.0.3"],

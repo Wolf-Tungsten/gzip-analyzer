@@ -3467,6 +3467,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"big-integer@npm:^1.6.51":
+  version: 1.6.51
+  resolution: "big-integer@npm:1.6.51"
+  checksum: 3d444173d1b2e20747e2c175568bedeebd8315b0637ea95d75fd27830d3b8e8ba36c6af40374f36bdaea7b5de376dcada1b07587cb2a79a928fccdb6e6e3c518
+  languageName: node
+  linkType: hard
+
 "big.js@npm:^5.2.2":
   version: 5.2.2
   resolution: "big.js@npm:5.2.2"
@@ -6053,8 +6060,10 @@ __metadata:
     "@testing-library/react": ^12.0.0
     "@testing-library/user-event": ^13.2.1
     antd: ^4.17.4
+    big-integer: ^1.6.51
     eslint: ^8.0.0
     eslint-config-react-app: ^7.0.0
+    moment: ^2.29.1
     react: ^17.0.2
     react-dom: ^17.0.2
     react-hooks-worker: ^1.0.3
@@ -8118,7 +8127,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"moment@npm:^2.24.0, moment@npm:^2.25.3":
+"moment@npm:^2.24.0, moment@npm:^2.25.3, moment@npm:^2.29.1":
   version: 2.29.1
   resolution: "moment@npm:2.29.1"
   checksum: 1e14d5f422a2687996be11dd2d50c8de3bd577c4a4ca79ba5d02c397242a933e5b941655de6c8cb90ac18f01cc4127e55b4a12ae3c527a6c0a274e455979345e
