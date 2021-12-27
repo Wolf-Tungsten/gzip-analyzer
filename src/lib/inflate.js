@@ -1,5 +1,6 @@
 import fstream from './fstream'
 import moment from 'moment'
+import parseBlock from './parse_block'
 
 const parseHeader = () => {
     const res = {}
@@ -64,7 +65,15 @@ const parseHeader = () => {
 }
 
 const parseBlocks = () => {
-
+    let res = []
+    while(1){
+        let block = parseBlock()
+        res.push(block)
+        if(block.BFINAL){
+            break
+        }
+    }
+    return res
 }
 
 const parseTrailer = () => {
