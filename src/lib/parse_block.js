@@ -98,6 +98,10 @@ const decodeDist = (distTree) => {
 const parseNoCompressionBlock = (res) => {
   res.blockType = "No Compression";
   console.log("No Compression");
+  res.LEN = fstream.getBytes(2)
+  fstream.getBytes(2)
+  fstream.getBytes(res.LEN)
+  return
 };
 
 const parseFixedHuffmanBlock = (res) => {
@@ -115,12 +119,15 @@ const parseDynamicHuffmanBlock = (res) => {
   let hclenOrderMap = [
     16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15,
   ];
-  let hclenOrdered = new Array(res.HCLEN);
+  let hclenOrdered = new Array(hclenOrderMap.length);
   hclenOrdered.fill(0, 0);
   for (let i = 0; i < res.HCLEN; i++) {
     hclenOrdered[hclenOrderMap[i]] = fstream.getUintOf(3);
   }
+  console.log(res)
+  console.log(hclenOrdered)
   res.codeLengthTree = buildHuffmanTree(hclenOrdered);
+  
   // 构造 litLengthTree
   res.litLengthCodeLength = decodeCodeLength(res.codeLengthTree, res.HLIT);
   res.litLengthTree = buildHuffmanTree(res.litLengthCodeLength);
@@ -173,7 +180,6 @@ const parseBlock = () => {
   
   res.BTYPE = fstream.getUintOf(2);
   if (res.BTYPE === 0) {
-    res.BFINAL = 1;
     parseNoCompressionBlock(res);
   } else if (res.BTYPE === 1) {
     res.BFINAL = 1;

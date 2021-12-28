@@ -80,6 +80,12 @@ const fstream = {
             res.push(this.getByte())
         }
         return res
+    },
+    alignToNextByte:function(){
+        if(this.headByteRemainBits > 0){
+            this.headByteRemainBits = 0
+            this.headAddr++
+        }
     }
 }
 export default fstream

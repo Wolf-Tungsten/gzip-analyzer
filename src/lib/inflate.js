@@ -69,6 +69,7 @@ const parseBlocks = () => {
     while(1){
         let block = parseBlock()
         res.push(block)
+        console.log(fstream)
         if(block.BFINAL){
             break
         }
@@ -77,7 +78,12 @@ const parseBlocks = () => {
 }
 
 const parseTrailer = () => {
-
+    fstream.alignToNextByte()
+    let res = {
+        CRC32:fstream.getBytes(4),
+        ISIZE:fstream.getBytes(4)
+    }
+    return res
 }
 
 const parseMember = () => {
@@ -94,6 +100,7 @@ const inflate = function(inputFileData){
     //while(!fstream.eof()){
         res.push(parseMember())
     //}
+    console.log(fstream)
     console.log(res)
     return res
 }
