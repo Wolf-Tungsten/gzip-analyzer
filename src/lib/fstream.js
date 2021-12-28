@@ -83,8 +83,13 @@ const fstream = {
     },
     alignToNextByte:function(){
         if(this.headByteRemainBits > 0){
-            this.headByteRemainBits = 0
             this.headAddr++
+            if(this.headAddr >= this.data.length){
+                this.headByteRemainBits = 0
+            } else {
+                this.headByteRemainBits = 8
+                this.headByte = this.data[this.headAddr]
+            }
         }
     }
 }

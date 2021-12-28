@@ -92,6 +92,8 @@ const parseMember = () => {
         blocks:parseBlocks(),
         trailer:parseTrailer()
     }
+    let length = res.blocks.map(b => b.uncompressedLength).reduce((a, b) => a + b)
+    console.log(`length=${length / 8}`)
     return res
 }
 const inflate = function(inputFileData){
