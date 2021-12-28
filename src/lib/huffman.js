@@ -2,13 +2,15 @@ import fstream from "./fstream"
 
 const MAX_BITS = 15
 
-const _buildHuffmanTree = (tree, nodes) => {
+const _buildHuffmanTree = (tree, nodes, name) => {
     if(nodes.length === 1){
         tree.leaf = true
-        tree.alphabet = nodes[0].alphabet
+        tree.value = 1
+        tree.name = nodes[0].alphabet
         return
-    }
+    } 
     tree.leaf = false
+    tree.name = name
     let lNodes = nodes.filter( node => node.code.startsWith('0') ).map( node => ({
         alphabet: node.alphabet,
         code: node.code.slice(1)
@@ -17,15 +19,14 @@ const _buildHuffmanTree = (tree, nodes) => {
         alphabet: node.alphabet,
         code: node.code.slice(1)
     })) 
+    tree.children = [{}, {}]
     if(lNodes.length > 0){
         tree.leaf = false
-        tree['0'] = {}
-        _buildHuffmanTree(tree['0'], lNodes)
+        _buildHuffmanTree(tree.children[0], lNodes, 0)
     }
     if(rNodes.length > 0){
         tree.leaf = false
-        tree['1'] = {}
-        _buildHuffmanTree(tree['1'], rNodes)
+        _buildHuffmanTree(tree.children[1], rNodes, 1)
     }
 }
 const buildHuffmanTree = (codeLengths) => {
@@ -50,7 +51,8 @@ const buildHuffmanTree = (codeLengths) => {
     }).filter( elem => elem.code !== '')
     //console.log(huffmanNodes)
     let tree = {}
-    _buildHuffmanTree(tree, huffmanNodes)
+    let sankey = {data:[], links:[]}
+    _buildHuffmanTree(tree, huffmanNodes, "root")
     //console.log(tree)
     return tree
 }
