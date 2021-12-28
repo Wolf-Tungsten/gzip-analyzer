@@ -1,14 +1,5 @@
 import fstream from "./fstream";
 import buildHuffmanTree from "./huffman";
-const parseNoCompressionBlock = (res) => {
-  res.blockType = "No Compression";
-  console.log("No Compression");
-};
-
-const parseFixedHuffmanBlock = (res) => {
-  res.blockType = "Fixed Huffman Block";
-  console.log("Fixed Huffman");
-};
 
 const decodeCodeLength = (tree, num) => {
   let res = [];
@@ -22,25 +13,96 @@ const decodeCodeLength = (tree, num) => {
       }
     }
     if (node.name <= 15) {
-        res.push(node.name)
-    } else if (node.name === 16){
-        let extra = fstream.getUintOf(2) + 3
-        for(let i = 0; i < extra; i++){
-            res.push(res[res.length - 1])
-        }
-    } else if (node.name === 17){
-        let extra = fstream.getUintOf(3) + 3
-        for(let i = 0; i < extra; i++){
-            res.push(0)
-        }
-    } else if (node.name === 18){
-        let extra = fstream.getUintOf(7) + 11
-        for(let i = 0; i < extra; i++){
-            res.push(0)
-        } 
+      res.push(node.name);
+    } else if (node.name === 16) {
+      let extra = fstream.getUintOf(2) + 3;
+      for (let i = 0; i < extra; i++) {
+        res.push(res[res.length - 1]);
+      }
+    } else if (node.name === 17) {
+      let extra = fstream.getUintOf(3) + 3;
+      for (let i = 0; i < extra; i++) {
+        res.push(0);
+      }
+    } else if (node.name === 18) {
+      let extra = fstream.getUintOf(7) + 11;
+      for (let i = 0; i < extra; i++) {
+        res.push(0);
+      }
     }
   }
-  return res
+  return res;
+};
+
+const litLengthExtraBits = [
+  0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5,
+  5, 5, 0,
+];
+const litLengthExtraStart = [
+  3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15, 17, 19, 23, 27, 31, 35, 43, 51, 59, 67,
+  83, 99, 115, 131, 163, 195, 227, 258,
+];
+const decodeLitLength = (litLengthTree) => {
+  let node = litLengthTree;
+  let codeBits = 0;
+  while (!node.leaf) {
+    if (fstream.getBit()) {
+      node = node.children[1];
+    } else {
+      node = node.children[0];
+    }
+    codeBits++
+  }
+  let lettel = node.name;
+  let res = { lit: 0, len: 0, eob: false, codeBits };
+  if (lettel < 256) {
+    res.lit = lettel;
+    res.len = 1;
+  } else if (lettel === 256) {
+    res.eob = true;
+  } else if (lettel > 256 && lettel <= 285) {
+    res.len =
+      litLengthExtraStart[lettel - 257] +
+      fstream.getUintOf(litLengthExtraBits[lettel - 257]);
+    res.codeBits += litLengthExtraBits[lettel - 257] 
+  }
+  return res;
+};
+
+const distExtraBits = [
+  0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11,
+  11, 12, 12, 13, 13, 0, 0,
+];
+const distExtraStart = [
+  1, 2, 3, 4, 5, 7, 9, 13, 17, 25, 33, 49, 65, 97, 129, 193, 257, 385, 513, 769,
+  1025, 1537, 2049, 3073, 4097, 6145, 8193, 12289, 16385, 24577, 0, 0,
+];
+const decodeDist = (distTree) => {
+    let node = distTree
+    let codeBits = 0
+    while(!node.leaf){
+        if(fstream.getBit()){
+            node = node.children[1]
+        } else {
+            node = node.children[0]
+        }
+        codeBits++
+    }
+    let letter = node.name
+    return {
+        dist:distExtraStart[letter] + fstream.getUintOf(distExtraBits[letter]),
+        codeBits: codeBits + distExtraBits[letter] 
+    }
+}
+
+const parseNoCompressionBlock = (res) => {
+  res.blockType = "No Compression";
+  console.log("No Compression");
+};
+
+const parseFixedHuffmanBlock = (res) => {
+  res.blockType = "Fixed Huffman Block";
+  console.log("Fixed Huffman");
 };
 
 const parseDynamicHuffmanBlock = (res) => {
@@ -49,6 +111,7 @@ const parseDynamicHuffmanBlock = (res) => {
   res.HLIT = fstream.getUintOf(5) + 257;
   res.HDIST = fstream.getUintOf(5) + 1;
   res.HCLEN = fstream.getUintOf(4) + 4;
+  // 解码 codeLength 构造 code length tree
   let hclenOrderMap = [
     16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15,
   ];
@@ -57,30 +120,63 @@ const parseDynamicHuffmanBlock = (res) => {
   for (let i = 0; i < res.HCLEN; i++) {
     hclenOrdered[hclenOrderMap[i]] = fstream.getUintOf(3);
   }
-  console.log(res);
-  const codeLengthTree = buildHuffmanTree(hclenOrdered);
-  console.log(codeLengthTree)
-  const litLengthCodeLength = decodeCodeLength(codeLengthTree, res.HLIT);
-  console.log(litLengthCodeLength)
-  const distCodeLength = decodeCodeLength(codeLengthTree, res.HDIST);
-  console.log(distCodeLength)
-  const litLengthTree = buildHuffmanTree(litLengthCodeLength)
-  console.log(JSON.stringify(litLengthTree))
-  const distTree = buildHuffmanTree(distCodeLength)
-  console.log(distTree)
+  res.codeLengthTree = buildHuffmanTree(hclenOrdered);
+  // 构造 litLengthTree
+  res.litLengthCodeLength = decodeCodeLength(res.codeLengthTree, res.HLIT);
+  res.litLengthTree = buildHuffmanTree(res.litLengthCodeLength);
+  // 构造 distTree
+  res.distCodeLength = decodeCodeLength(res.codeLengthTree, res.HDIST);
+  res.distTree = buildHuffmanTree(res.distCodeLength);
 
+  res.compressedLength = 0
+  res.uncompressedLength = 0
+  res.matchLength = 0
+  res.literalLength = 0
+  res.lengthDistribute = new Array(259)
+  res.lengthDistribute.fill(0, 0)
+  res.distDistribute = new Array(32769)
+  res.distDistribute.fill(0, 0)
+  res.heatMap = {}
+  const heatMapUpdate = (length, dist) => {
+      let key = `_${length}_${dist}`
+      if(res.heatMap[key]){
+          res.heatMap[key]++
+      } else {
+          res.heatMap[key] = 1
+      }
+  }
+  // 开始解码
+  while(1) {
+    const { lit: lit, len: len, eob: eob, codeBits:lenCodeBits } = decodeLitLength(res.litLengthTree)
+    if(eob){
+        break
+    } else if (len === 1){
+        res.compressedLength += lenCodeBits
+        res.uncompressedLength += 8
+        res.literalLength += 1
+    } else if (len >= 3){
+        const { dist, codeBits: distCodeBits } = decodeDist(res.distTree)
+        res.compressedLength += (lenCodeBits + distCodeBits)
+        res.uncompressedLength += (len * 8)
+        res.matchLength += len
+        res.lengthDistribute[len]++
+        res.distDistribute[len]++
+        heatMapUpdate(len, dist)
+    }
+  }
 };
 
 const parseBlock = () => {
   let res = {};
   res.BFINAL = fstream.getBit();
   // for debug
-  res.BFINAL = 1;
-
+  
   res.BTYPE = fstream.getUintOf(2);
   if (res.BTYPE === 0) {
+    res.BFINAL = 1;
     parseNoCompressionBlock(res);
   } else if (res.BTYPE === 1) {
+    res.BFINAL = 1;
     parseFixedHuffmanBlock(res);
   } else if (res.BTYPE === 2) {
     parseDynamicHuffmanBlock(res);
