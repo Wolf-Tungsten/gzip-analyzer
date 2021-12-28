@@ -51,9 +51,8 @@ const buildHuffmanTree = (codeLengths) => {
     }).filter( elem => elem.code !== '')
     //console.log(huffmanNodes)
     let tree = {}
-    let sankey = {data:[], links:[]}
     _buildHuffmanTree(tree, huffmanNodes, "root")
-    //console.log(tree)
+    console.log(tree)
     return tree
 }
 

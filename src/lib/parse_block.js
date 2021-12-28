@@ -16,24 +16,24 @@ const decodeCodeLength = (tree, num) => {
     let node = tree;
     while (!node.leaf) {
       if (fstream.getBit()) {
-        node = node["1"];
+        node = node.children[1];
       } else {
-        node = node["0"];
+        node = node.children[0];
       }
     }
-    if (node.alphabet <= 15) {
-        res.push(node.alphabet)
-    } else if (node.alphabet === 16){
+    if (node.name <= 15) {
+        res.push(node.name)
+    } else if (node.name === 16){
         let extra = fstream.getUintOf(2) + 3
         for(let i = 0; i < extra; i++){
             res.push(res[res.length - 1])
         }
-    } else if (node.alphabet === 17){
+    } else if (node.name === 17){
         let extra = fstream.getUintOf(3) + 3
         for(let i = 0; i < extra; i++){
             res.push(0)
         }
-    } else if (node.alphabet === 18){
+    } else if (node.name === 18){
         let extra = fstream.getUintOf(7) + 11
         for(let i = 0; i < extra; i++){
             res.push(0)
@@ -59,12 +59,13 @@ const parseDynamicHuffmanBlock = (res) => {
   }
   console.log(res);
   const codeLengthTree = buildHuffmanTree(hclenOrdered);
+  console.log(codeLengthTree)
   const litLengthCodeLength = decodeCodeLength(codeLengthTree, res.HLIT);
   console.log(litLengthCodeLength)
   const distCodeLength = decodeCodeLength(codeLengthTree, res.HDIST);
   console.log(distCodeLength)
   const litLengthTree = buildHuffmanTree(litLengthCodeLength)
-  console.log(litLengthTree)
+  console.log(JSON.stringify(litLengthTree))
   const distTree = buildHuffmanTree(distCodeLength)
   console.log(distTree)
 
