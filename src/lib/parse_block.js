@@ -227,6 +227,7 @@ const parseBlock = () => {
   } else if (res.BTYPE === 2) {
     parseDynamicHuffmanBlock(res);
   }
+  postMessage({type:"INFLATE_PROGRESS", payload:(fstream.headAddr / fstream.data.length * 100)})
   return res;
 };
 
