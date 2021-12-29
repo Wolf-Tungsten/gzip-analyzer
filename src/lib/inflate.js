@@ -99,11 +99,9 @@ const parseMember = () => {
 const inflate = function(inputFileData){
     fstream.init(inputFileData)
     let res = []
-    //while(!fstream.eof()){
+    while(!fstream.eof()){
         res.push(parseMember())
-    //}
-    console.log(fstream)
-    console.log(res)
+    }
     return res
 }
 
