@@ -10,7 +10,7 @@ import {
   Upload,
   message,
   Progress,
-  Badge
+  Badge,
 } from "antd";
 import "./App.css";
 import {
@@ -22,6 +22,7 @@ import {
   UploadOutlined,
 } from "@ant-design/icons";
 import { useWorker } from "react-hooks-worker";
+import { BlockView } from "./view/BlockView";
 
 const { Title } = Typography;
 const { Header, Content, Footer, Sider } = Layout;
@@ -84,23 +85,31 @@ const App = () => {
     },
   };
 
-  const onMenuItemClick = ({key}) => {
-    let [type, memberIdx, blockIdx] = key.split('_')
-    memberIdx = parseInt(memberIdx)
-    if(type === 'header'){
-      console.log(inflateResult[memberIdx].header)
-    } else if (type === 'block'){
-      blockIdx = parseInt(blockIdx)
-      console.log(inflateResult[memberIdx].blocks[blockIdx])
-    } else if (type === 'trailer'){
-      console.log(inflateResult[memberIdx].trailer)
+  const [viewType, setViewType] = useState("none");
+  const [viewMemberIdx, setViewMemberIdx] = useState(0);
+  const [viewBlockIdx, setViewBlockIdx] = useState(0);
+
+  const onMenuItemClick = ({ key }) => {
+    let [type, memberIdx, blockIdx] = key.split("_");
+    memberIdx = parseInt(memberIdx);
+    console.log(type)
+    setViewType(type);
+    setViewMemberIdx(memberIdx);
+    if (type === "header") {
+      console.log(inflateResult[memberIdx].header);
+    } else if (type === "block") {
+      blockIdx = parseInt(blockIdx);
+      setViewBlockIdx(blockIdx);
+      console.log(inflateResult[memberIdx].blocks[blockIdx]);
+    } else if (type === "trailer") {
+      console.log(inflateResult[memberIdx].trailer);
     }
-  }
+  };
 
   return (
     <Layout>
       <Sider
-        width="330"
+        width="350"
         style={{
           overflow: "auto",
           height: "100vh",
@@ -143,7 +152,12 @@ const App = () => {
           dashed={true}
           style={{ borderColor: "rgba(255, 255, 255, 0.3)" }}
         ></Divider>
-        <Menu theme="dark" mode="inline" defaultOpenKeys={["member0"]} onClick={onMenuItemClick}>
+        <Menu
+          theme="dark"
+          mode="inline"
+          defaultOpenKeys={["member0"]}
+          onClick={onMenuItemClick}
+        >
           {inflateResult.map((member, memberIdx) => {
             return (
               <SubMenu
@@ -151,10 +165,7 @@ const App = () => {
                 icon={<FolderOutlined />}
                 title={`Member ${memberIdx}`}
               >
-                <Menu.Item
-                  key={`header_${memberIdx}`}
-                  icon={<AuditOutlined />}
-                >
+                <Menu.Item key={`header_${memberIdx}`} icon={<AuditOutlined />}>
                   Header
                 </Menu.Item>
                 <SubMenu
@@ -162,13 +173,16 @@ const App = () => {
                   icon={<HddOutlined />}
                   title={<>Blocks ({member.blocks.length})</>}
                 >
-                  {
-                    member.blocks.map((block, blockIdx) => {
-                      return (<Menu.Item key={`block_${memberIdx}_${blockIdx}`} icon={<BlockOutlined />}>
+                  {member.blocks.map((block, blockIdx) => {
+                    return (
+                      <Menu.Item
+                        key={`block_${memberIdx}_${blockIdx}`}
+                        icon={<BlockOutlined />}
+                      >
                         [{blockIdx}] {block.blockType}
-                      </Menu.Item>)
-                    })
-                  }
+                      </Menu.Item>
+                    );
+                  })}
                 </SubMenu>
                 <Menu.Item
                   key={`trailer_${memberIdx}`}
@@ -181,6 +195,16 @@ const App = () => {
           })}
         </Menu>
       </Sider>
+
+      <Layout style={{ marginLeft: 350 }} className="site-layout-background">
+        <Content style={{ margin: "24px 28px 0", overflow: "initial" }}>
+          {(() => {
+            if (viewType === "block") {
+              return <BlockView memberIdx={viewMemberIdx} blockIdx={viewBlockIdx} data={inflateResult[viewMemberIdx].blocks[viewBlockIdx]}/>;
+            }
+          })()}
+        </Content>
+      </Layout>
     </Layout>
   );
 };

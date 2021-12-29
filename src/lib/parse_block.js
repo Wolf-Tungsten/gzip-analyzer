@@ -206,11 +206,12 @@ const parseDynamicHuffmanBlock = (res) => {
     hclenOrdered[hclenOrderMap[i]] = fstream.getUintOf(3);
   }
 
-  res.codeLengthTree = buildHuffmanTree(hclenOrdered)[0];
-  
+  let treeRes = buildHuffmanTree(hclenOrdered) 
+  res.codeLengthTree = treeRes[0]
+  res.codeLengthHuffmanCode = treeRes[1]
   // 构造 litLengthTree
   res.litLengthCodeLength = decodeCodeLength(res.codeLengthTree, res.HLIT);
-  let treeRes = buildHuffmanTree(res.litLengthCodeLength);
+  treeRes = buildHuffmanTree(res.litLengthCodeLength);
   res.litLengthTree = treeRes[0]
   res.litLengthHuffmanCode = treeRes[1]
   // 构造 distTree
