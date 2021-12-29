@@ -69,7 +69,7 @@ const parseBlocks = () => {
     while(1){
         let block = parseBlock()
         res.push(block)
-        console.log(fstream)
+        //console.log(fstream)
         if(block.BFINAL){
             break
         }

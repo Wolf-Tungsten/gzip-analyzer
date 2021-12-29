@@ -135,8 +135,8 @@ const decodeBlock = (res) => {
 }
 
 const parseNoCompressionBlock = (res) => {
-  res.blockType = "No Compression";
-  console.log("No Compression");
+  res.blockType = "No Compression Block";
+  console.log("No Compression Block");
   fstream.alignToNextByte()
   res.LEN = fstream.getBytes(2)
   res.uncompressedLength = res.LEN * 8
@@ -169,13 +169,17 @@ const parseFixedHuffmanBlock = (res) => {
         fixedLitLengthCodeLength.push(8)
       }
     }
-    fixedLitLengthTree = buildHuffmanTree(fixedLitLengthCodeLength)
+    let treeRes = buildHuffmanTree(fixedLitLengthCodeLength)
+    fixedLitLengthTree = treeRes[0]
+    res.litLengthHuffmanCode = treeRes[1]
   }
   if(!fixedDistTree){
     for(let i = 0; i <= 31; i++){
       fixedDistCodeLength.push(5)
     }
-    fixedDistTree = buildHuffmanTree(fixedDistCodeLength)
+    let treeRes = buildHuffmanTree(fixedDistCodeLength)
+    fixedDistTree = treeRes[0]
+    res.distHuffmanCode = treeRes[1] 
   }
 
   res.litLengthCodeLength = fixedLitLengthCodeLength
@@ -202,15 +206,19 @@ const parseDynamicHuffmanBlock = (res) => {
     hclenOrdered[hclenOrderMap[i]] = fstream.getUintOf(3);
   }
 
-  res.codeLengthTree = buildHuffmanTree(hclenOrdered);
+  res.codeLengthTree = buildHuffmanTree(hclenOrdered)[0];
   
   // 构造 litLengthTree
   res.litLengthCodeLength = decodeCodeLength(res.codeLengthTree, res.HLIT);
-  res.litLengthTree = buildHuffmanTree(res.litLengthCodeLength);
+  let treeRes = buildHuffmanTree(res.litLengthCodeLength);
+  res.litLengthTree = treeRes[0]
+  res.litLengthHuffmanCode = treeRes[1]
   // 构造 distTree
   res.distCodeLength = decodeCodeLength(res.codeLengthTree, res.HDIST);
-  res.distTree = buildHuffmanTree(res.distCodeLength);
-
+  treeRes = buildHuffmanTree(res.distCodeLength);
+  res.distTree = treeRes[0]
+  res.distHuffmanCode = treeRes[1] 
+  
   decodeBlock(res)
 };
 

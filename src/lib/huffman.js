@@ -53,7 +53,7 @@ const buildHuffmanTree = (codeLengths) => {
     let tree = {}
     //console.log(huffmanNodes)
     _buildHuffmanTree(tree, huffmanNodes, "root")
-    return tree
+    return [tree, huffmanNodes]
 }
 
 export default buildHuffmanTree

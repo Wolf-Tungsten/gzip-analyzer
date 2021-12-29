@@ -10,6 +10,7 @@ import {
   Upload,
   message,
   Progress,
+  Badge
 } from "antd";
 import "./App.css";
 import {
@@ -41,7 +42,7 @@ const App = () => {
   // const { result, error } = useWorker(createWorker, { a: 1 });
 
   const [progress, setProgress] = useState(0);
-
+  const [inflateResult, setInflateResult] = useState([]);
   const startWorkerProcess = async (gzFile) => {
     let fileData = await readFile(gzFile);
     console.log(fileData);
@@ -55,8 +56,11 @@ const App = () => {
       if (e.data.type === "INFLATE_RESULT") {
         worker.terminate();
         console.log(e.data);
+        setInflateResult(e.data.payload);
         setProgress(100);
-        setTimeout(()=>{setProgress(0)}, 1000)
+        setTimeout(() => {
+          setProgress(0);
+        }, 1000);
       } else if (e.data.type === "INFLATE_PROGRESS") {
         setProgress(e.data.payload);
       }
@@ -80,10 +84,23 @@ const App = () => {
     },
   };
 
+  const onMenuItemClick = ({key}) => {
+    let [type, memberIdx, blockIdx] = key.split('_')
+    memberIdx = parseInt(memberIdx)
+    if(type === 'header'){
+      console.log(inflateResult[memberIdx].header)
+    } else if (type === 'block'){
+      blockIdx = parseInt(blockIdx)
+      console.log(inflateResult[memberIdx].blocks[blockIdx])
+    } else if (type === 'trailer'){
+      console.log(inflateResult[memberIdx].trailer)
+    }
+  }
+
   return (
     <Layout>
       <Sider
-        width="240"
+        width="330"
         style={{
           overflow: "auto",
           height: "100vh",
@@ -126,66 +143,42 @@ const App = () => {
           dashed={true}
           style={{ borderColor: "rgba(255, 255, 255, 0.3)" }}
         ></Divider>
-        <Menu theme="dark" mode="inline" defaultSelectedKeys={["4"]}>
-          <SubMenu key="member0" icon={<FolderOutlined />} title="Member 0">
-            <Menu.Item key="member0_header" icon={<AuditOutlined />}>
-              Header
-            </Menu.Item>
-            <SubMenu key="member0_blocks" icon={<HddOutlined />} title="Blocks">
-              <Menu.Item key="0" icon={<BlockOutlined />}>
-                Block 0
-              </Menu.Item>
-              <Menu.Item key="1" icon={<BlockOutlined />}>
-                Block 1
-              </Menu.Item>
-              <Menu.Item key="2" icon={<BlockOutlined />}>
-                Block 2
-              </Menu.Item>
-            </SubMenu>
-            <Menu.Item key="member0_trailer" icon={<BarcodeOutlined />}>
-              Trailer
-            </Menu.Item>
-          </SubMenu>
-
-          <SubMenu key="member1" icon={<FolderOutlined />} title="Member 1">
-            <Menu.Item key="member1_header" icon={<AuditOutlined />}>
-              Header
-            </Menu.Item>
-            <SubMenu key="member1_blocks" icon={<HddOutlined />} title="Blocks">
-              <Menu.Item key="3" icon={<BlockOutlined />}>
-                Block 0
-              </Menu.Item>
-              <Menu.Item key="4" icon={<BlockOutlined />}>
-                Block 1
-              </Menu.Item>
-              <Menu.Item key="5" icon={<BlockOutlined />}>
-                Block 2
-              </Menu.Item>
-            </SubMenu>
-            <Menu.Item key="member1_trailer" icon={<BarcodeOutlined />}>
-              Trailer
-            </Menu.Item>
-          </SubMenu>
-
-          <SubMenu key="member2" icon={<FolderOutlined />} title="Member 2">
-            <Menu.Item key="member2_header" icon={<AuditOutlined />}>
-              Header
-            </Menu.Item>
-            <SubMenu key="member2_blocks" icon={<HddOutlined />} title="Blocks">
-              <Menu.Item key="6" icon={<BlockOutlined />}>
-                Block 0
-              </Menu.Item>
-              <Menu.Item key="7" icon={<BlockOutlined />}>
-                Block 1
-              </Menu.Item>
-              <Menu.Item key="8" icon={<BlockOutlined />}>
-                Block 2
-              </Menu.Item>
-            </SubMenu>
-            <Menu.Item key="member2_trailer" icon={<BarcodeOutlined />}>
-              Trailer
-            </Menu.Item>
-          </SubMenu>
+        <Menu theme="dark" mode="inline" defaultOpenKeys={["member0"]} onClick={onMenuItemClick}>
+          {inflateResult.map((member, memberIdx) => {
+            return (
+              <SubMenu
+                key={`member${memberIdx}`}
+                icon={<FolderOutlined />}
+                title={`Member ${memberIdx}`}
+              >
+                <Menu.Item
+                  key={`header_${memberIdx}`}
+                  icon={<AuditOutlined />}
+                >
+                  Header
+                </Menu.Item>
+                <SubMenu
+                  key={`member${memberIdx}_blocks`}
+                  icon={<HddOutlined />}
+                  title={<>Blocks ({member.blocks.length})</>}
+                >
+                  {
+                    member.blocks.map((block, blockIdx) => {
+                      return (<Menu.Item key={`block_${memberIdx}_${blockIdx}`} icon={<BlockOutlined />}>
+                        [{blockIdx}] {block.blockType}
+                      </Menu.Item>)
+                    })
+                  }
+                </SubMenu>
+                <Menu.Item
+                  key={`trailer_${memberIdx}`}
+                  icon={<BarcodeOutlined />}
+                >
+                  Trailer
+                </Menu.Item>
+              </SubMenu>
+            );
+          })}
         </Menu>
       </Sider>
     </Layout>
