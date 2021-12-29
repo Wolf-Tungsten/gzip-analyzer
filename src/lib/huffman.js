@@ -51,7 +51,7 @@ const buildHuffmanTree = (codeLengths) => {
     }).filter( elem => elem.code !== '')
     //console.log(huffmanNodes)
     let tree = {}
-    console.log(huffmanNodes)
+    //console.log(huffmanNodes)
     _buildHuffmanTree(tree, huffmanNodes, "root")
     return tree
 }
