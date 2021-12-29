@@ -15,7 +15,11 @@ const fstream = {
         this.headByteRemainBits = 8
     },
     eof:function(){
-        return this.headAddr >= this.data.length
+        if(this.headByteRemainBits === 0){
+            return this.headAddr + 1 >= this.data.length
+        } else {
+            return this.headAddr >= this.data.length
+        }
     },
     bitsMask:[0, 0x1, 0x3, 0x7, 0xf, 0x1f, 0x3f, 0x7f, 0xff],
     getBigIntOf:function(bits){

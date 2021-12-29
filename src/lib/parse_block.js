@@ -98,9 +98,15 @@ const decodeDist = (distTree) => {
 const parseNoCompressionBlock = (res) => {
   res.blockType = "No Compression";
   console.log("No Compression");
+  fstream.alignToNextByte()
   res.LEN = fstream.getBytes(2)
+  res.uncompressedLength = res.LEN * 8
+  res.compressedLength = res.LEN
+  console.log(res)
   fstream.getBytes(2)
-  fstream.getBytes(res.LEN)
+  for(let i = 0;i < res.LEN; i++){
+    fstream.getByte()
+  }
   return
 };
 
