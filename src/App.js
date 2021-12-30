@@ -11,6 +11,7 @@ import {
   message,
   Progress,
   Badge,
+  Alert
 } from "antd";
 import "./App.css";
 import {
@@ -22,9 +23,11 @@ import {
   UploadOutlined,
 } from "@ant-design/icons";
 import { useWorker } from "react-hooks-worker";
+import { HeaderView } from "./view/HeaderView";
 import { BlockView } from "./view/BlockView";
+import { TrailerView } from "./view/TrailerView";
 
-const { Title } = Typography;
+const { Title, Paragraph, Text, Link } = Typography;
 const { Header, Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
 
@@ -56,7 +59,6 @@ const App = () => {
       //console.log('message from worker')
       if (e.data.type === "INFLATE_RESULT") {
         worker.terminate();
-        console.log(e.data);
         setInflateResult(e.data.payload);
         setProgress(100);
         setTimeout(() => {
@@ -163,10 +165,10 @@ const App = () => {
               <SubMenu
                 key={`member${memberIdx}`}
                 icon={<FolderOutlined />}
-                title={`Member ${memberIdx}`}
+                title={`Member ${memberIdx} ${member.error ? '⛔️' : ''}`}
               >
                 <Menu.Item key={`header_${memberIdx}`} icon={<AuditOutlined />}>
-                  Header
+                  Header  {member.header.error ? '⛔️' : ''} 
                 </Menu.Item>
                 <SubMenu
                   key={`member${memberIdx}_blocks`}
@@ -179,7 +181,7 @@ const App = () => {
                         key={`block_${memberIdx}_${blockIdx}`}
                         icon={<BlockOutlined />}
                       >
-                        [{blockIdx}] {block.blockType}
+                        [{blockIdx}] {block.blockType} {block.error ? '⛔️' : ''} 
                       </Menu.Item>
                     );
                   })}
@@ -188,7 +190,7 @@ const App = () => {
                   key={`trailer_${memberIdx}`}
                   icon={<BarcodeOutlined />}
                 >
-                  Trailer
+                  Trailer {member.trailer.error ? '⛔️' : ''}
                 </Menu.Item>
               </SubMenu>
             );
@@ -199,8 +201,27 @@ const App = () => {
       <Layout style={{ marginLeft: 350 }} className="site-layout-background">
         <Content style={{ margin: "24px 28px 0", overflow: "initial" }}>
           {(() => {
-            if (viewType === "block") {
+            if (viewType === "none") {
+              return <>
+              <Typography>
+                <Title>Welcome to Gzip Analyzer!</Title>
+                <Paragraph>
+                  
+                  <Alert
+      message="Hint"
+      description="Please open a gzip file first. Then select a menu item to view the details."
+      type="info"
+      showIcon
+    />
+                </Paragraph>
+              </Typography>
+              </>
+            } else if (viewType === "header") {
+              return <HeaderView data={inflateResult[viewMemberIdx].header} />
+            } else if (viewType === "block") {
               return <BlockView memberIdx={viewMemberIdx} blockIdx={viewBlockIdx} data={inflateResult[viewMemberIdx].blocks[viewBlockIdx]}/>;
+            } else if (viewType === "trailer") {
+              return <TrailerView data={inflateResult[viewMemberIdx].trailer} />
             }
           })()}
         </Content>

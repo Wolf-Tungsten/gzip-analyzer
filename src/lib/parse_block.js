@@ -51,7 +51,7 @@ const decodeLitLength = (litLengthTree) => {
     } else {
       node = node.children[0];
     }
-    codeBits++
+    codeBits++;
   }
   let lettel = node.name;
   let res = { lit: 0, len: 0, eob: false, codeBits };
@@ -64,7 +64,7 @@ const decodeLitLength = (litLengthTree) => {
     res.len =
       litLengthExtraStart[lettel - 257] +
       fstream.getUintOf(litLengthExtraBits[lettel - 257]);
-    res.codeBits += litLengthExtraBits[lettel - 257] 
+    res.codeBits += litLengthExtraBits[lettel - 257];
   }
   return res;
 };
@@ -78,120 +78,135 @@ const distExtraStart = [
   1025, 1537, 2049, 3073, 4097, 6145, 8193, 12289, 16385, 24577, 0, 0,
 ];
 const decodeDist = (distTree) => {
-    let node = distTree
-    let codeBits = 0
-    while(!node.leaf){
-        if(fstream.getBit()){
-            node = node.children[1]
-        } else {
-            node = node.children[0]
-        }
-        codeBits++
+  let node = distTree;
+  let codeBits = 0;
+  while (!node.leaf) {
+    if (fstream.getBit()) {
+      node = node.children[1];
+    } else {
+      node = node.children[0];
     }
-    let letter = node.name
-    return {
-        dist:distExtraStart[letter] + fstream.getUintOf(distExtraBits[letter]),
-        codeBits: codeBits + distExtraBits[letter] 
-    }
-}
+    codeBits++;
+  }
+  let letter = node.name;
+  return {
+    dist: distExtraStart[letter] + fstream.getUintOf(distExtraBits[letter]),
+    codeBits: codeBits + distExtraBits[letter],
+  };
+};
 
 const decodeBlock = (res) => {
-  res.compressedLength = 0
-  res.uncompressedLength = 0
-  res.matchLength = 0
-  res.literalLength = 0
-  res.lengthDistribute = new Array(259)
-  res.lengthDistribute.fill(0, 0)
-  res.distDistribute = new Array(32769)
-  res.distDistribute.fill(0, 0)
-  res.heatMap = {}
+  res.compressedLength = 0;
+  res.uncompressedLength = 0;
+  res.matchLength = 0;
+  res.literalLength = 0;
+  res.averageDist = 0;
+  res.averageLength = 0;
+  res.lengthDistribute = new Array(259);
+  res.lengthDistribute.fill(0, 0);
+  res.distDistribute = new Array(32769);
+  res.distDistribute.fill(0, 0);
+  res.heatMap = {};
   const heatMapUpdate = (length, dist) => {
-      let key = `_${length}_${dist}`
-      if(res.heatMap[key]){
-          res.heatMap[key]++
-      } else {
-          res.heatMap[key] = 1
-      }
-  }
+    let key = `_${length}_${dist}`;
+    if (res.heatMap[key]) {
+      res.heatMap[key]++;
+    } else {
+      res.heatMap[key] = 1;
+    }
+  };
   // 开始解码
-  while(1) {
-    const { lit: lit, len: len, eob: eob, codeBits:lenCodeBits } = decodeLitLength(res.litLengthTree)
-    if(eob){
-        break
-    } else if (len === 1){
-        res.compressedLength += lenCodeBits
-        res.uncompressedLength += 8
-        res.literalLength += 1
-    } else if (len >= 3){
-        const { dist, codeBits: distCodeBits } = decodeDist(res.distTree)
-        res.compressedLength += (lenCodeBits + distCodeBits)
-        res.uncompressedLength += (len * 8)
-        res.matchLength += len
-        res.lengthDistribute[len]++
-        res.distDistribute[dist]++
-        heatMapUpdate(len, dist)
+  while (1) {
+    const {
+      lit: lit,
+      len: len,
+      eob: eob,
+      codeBits: lenCodeBits,
+    } = decodeLitLength(res.litLengthTree);
+    if (eob) {
+      break;
+    } else if (len === 1) {
+      res.compressedLength += lenCodeBits;
+      res.uncompressedLength += 8;
+      res.literalLength += 1;
+    } else if (len >= 3) {
+      const { dist, codeBits: distCodeBits } = decodeDist(res.distTree);
+      res.compressedLength += lenCodeBits + distCodeBits;
+      res.uncompressedLength += len * 8;
+      res.matchLength += len;
+      res.lengthDistribute[len]++;
+      res.distDistribute[dist]++;
+      heatMapUpdate(len, dist);
     }
   }
-}
+
+  res.averageDist =
+    res.distDistribute.map((v, idx) => v * idx).reduce((a, b) => a + b) /
+    res.distDistribute.reduce((a, b) => a + b);
+
+  res.averageLength =
+    res.lengthDistribute.map((v, idx) => v * idx).reduce((a, b) => a + b) /
+    res.lengthDistribute.reduce((a, b) => a + b);
+};
 
 const parseNoCompressionBlock = (res) => {
   res.blockType = "No Compression Block";
   console.log("No Compression Block");
-  fstream.alignToNextByte()
-  res.LEN = fstream.getBytes(2)
-  res.uncompressedLength = res.LEN * 8
-  res.compressedLength = res.LEN * 8
-  console.log(res)
-  fstream.getBytes(2)
-  for(let i = 0;i < res.LEN; i++){
-    fstream.getByte()
+  fstream.alignToNextByte();
+  res.LEN = fstream.getBytes(2);
+  res.uncompressedLength = res.LEN * 8;
+  res.compressedLength = res.LEN * 8;
+  console.log(res);
+  fstream.getBytes(2);
+  for (let i = 0; i < res.LEN; i++) {
+    fstream.getByte();
   }
-  return
+  return;
 };
 
-let fixedLitLengthHuffmanCode = undefined
-let fixedDistHuffmanCode = undefined
-let fixedLitLengthTree = undefined
-let fixedDistTree = undefined
-let fixedLitLengthCodeLength = []
-let fixedDistCodeLength = []
+let fixedLitLengthHuffmanCode = undefined;
+let fixedDistHuffmanCode = undefined;
+let fixedLitLengthTree = undefined;
+let fixedDistTree = undefined;
+let fixedLitLengthCodeLength = [];
+let fixedDistCodeLength = [];
 const parseFixedHuffmanBlock = (res) => {
   res.blockType = "Fixed Huffman Block";
   console.log("Fixed Huffman");
-  if(!fixedLitLengthTree){
+  if (!fixedLitLengthTree) {
     // 构造 fixedLitLengthTree
-    for(let i = 0; i <= 287; i++){
-      if(i <= 143){
-        fixedLitLengthCodeLength.push(8)
-      } else if (i <= 255){
-        fixedLitLengthCodeLength.push(9)
-      } else if (i <= 279){
-        fixedLitLengthCodeLength.push(7)
+    for (let i = 0; i <= 287; i++) {
+      if (i <= 143) {
+        fixedLitLengthCodeLength.push(8);
+      } else if (i <= 255) {
+        fixedLitLengthCodeLength.push(9);
+      } else if (i <= 279) {
+        fixedLitLengthCodeLength.push(7);
       } else {
-        fixedLitLengthCodeLength.push(8)
+        fixedLitLengthCodeLength.push(8);
       }
     }
-    let treeRes = buildHuffmanTree(fixedLitLengthCodeLength)
-    fixedLitLengthTree = treeRes[0]
-    fixedLitLengthHuffmanCode = treeRes[1]
+    let treeRes = buildHuffmanTree(fixedLitLengthCodeLength);
+    fixedLitLengthTree = treeRes[0];
+    fixedLitLengthHuffmanCode = treeRes[1];
   }
-  if(!fixedDistTree){
-    for(let i = 0; i <= 31; i++){
-      fixedDistCodeLength.push(5)
+  if (!fixedDistTree) {
+    for (let i = 0; i <= 31; i++) {
+      fixedDistCodeLength.push(5);
     }
-    let treeRes = buildHuffmanTree(fixedDistCodeLength)
-    fixedDistTree = treeRes[0]
-    fixedDistHuffmanCode = treeRes[1] 
+    let treeRes = buildHuffmanTree(fixedDistCodeLength);
+    fixedDistTree = treeRes[0];
+    fixedDistHuffmanCode = treeRes[1];
   }
 
-  res.litLengthHuffmanCode = fixedLitLengthHuffmanCode
-  res.litLengthCodeLength = fixedLitLengthCodeLength
-  res.litLengthTree = fixedLitLengthTree
-  res.distHuffmanCode = fixedDistHuffmanCode
-  res.distCodeLength = fixedDistCodeLength
-  res.distTree = fixedDistTree
+  res.litLengthHuffmanCode = fixedLitLengthHuffmanCode;
+  res.litLengthCodeLength = fixedLitLengthCodeLength;
+  res.litLengthTree = fixedLitLengthTree;
+  res.distHuffmanCode = fixedDistHuffmanCode;
+  res.distCodeLength = fixedDistCodeLength;
+  res.distTree = fixedDistTree;
 
-  decodeBlock(res)
+  decodeBlock(res);
 };
 
 const parseDynamicHuffmanBlock = (res) => {
@@ -210,28 +225,27 @@ const parseDynamicHuffmanBlock = (res) => {
     hclenOrdered[hclenOrderMap[i]] = fstream.getUintOf(3);
   }
 
-  let treeRes = buildHuffmanTree(hclenOrdered) 
-  res.codeLengthTree = treeRes[0]
-  res.codeLengthHuffmanCode = treeRes[1]
+  let treeRes = buildHuffmanTree(hclenOrdered);
+  res.codeLengthTree = treeRes[0];
+  res.codeLengthHuffmanCode = treeRes[1];
   // 构造 litLengthTree
   res.litLengthCodeLength = decodeCodeLength(res.codeLengthTree, res.HLIT);
   treeRes = buildHuffmanTree(res.litLengthCodeLength);
-  res.litLengthTree = treeRes[0]
-  res.litLengthHuffmanCode = treeRes[1]
+  res.litLengthTree = treeRes[0];
+  res.litLengthHuffmanCode = treeRes[1];
   // 构造 distTree
   res.distCodeLength = decodeCodeLength(res.codeLengthTree, res.HDIST);
   treeRes = buildHuffmanTree(res.distCodeLength);
-  res.distTree = treeRes[0]
-  res.distHuffmanCode = treeRes[1] 
-  
-  decodeBlock(res)
+  res.distTree = treeRes[0];
+  res.distHuffmanCode = treeRes[1];
+
+  decodeBlock(res);
 };
 
-const parseBlock = () => {
-  let res = {};
+const parseBlock = (res) => {
   res.BFINAL = fstream.getBit();
   // for debug
-  
+
   res.BTYPE = fstream.getUintOf(2);
   if (res.BTYPE === 0) {
     parseNoCompressionBlock(res);
@@ -240,8 +254,10 @@ const parseBlock = () => {
   } else if (res.BTYPE === 2) {
     parseDynamicHuffmanBlock(res);
   }
-  postMessage({type:"INFLATE_PROGRESS", payload:(fstream.headAddr / fstream.data.length * 100)})
-  return res;
+  postMessage({
+    type: "INFLATE_PROGRESS",
+    payload: (fstream.headAddr / fstream.data.length) * 100,
+  });
 };
 
 export default parseBlock;
