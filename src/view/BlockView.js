@@ -41,6 +41,9 @@ const huffmanTreeOption = (data, color = "#13acd9") => {
             padding: 6,
           },
         },
+        itemStyle: {
+            color
+        },
         lineStyle: { curveness: 0 },
         animationDurationUpdate: 750,
         initialTreeDepth: 4,
@@ -158,7 +161,7 @@ const distDistributeOption = (data) => {
           symbol: "none",
           sampling: "lttb",
           itemStyle: {
-            color: "#003049",
+            color: "#118ab2",
           },
   
           data: data,
