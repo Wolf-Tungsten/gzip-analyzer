@@ -128,7 +128,7 @@ const decodeBlock = (res) => {
         res.uncompressedLength += (len * 8)
         res.matchLength += len
         res.lengthDistribute[len]++
-        res.distDistribute[len]++
+        res.distDistribute[dist]++
         heatMapUpdate(len, dist)
     }
   }
@@ -149,6 +149,8 @@ const parseNoCompressionBlock = (res) => {
   return
 };
 
+let fixedLitLengthHuffmanCode = undefined
+let fixedDistHuffmanCode = undefined
 let fixedLitLengthTree = undefined
 let fixedDistTree = undefined
 let fixedLitLengthCodeLength = []
@@ -171,7 +173,7 @@ const parseFixedHuffmanBlock = (res) => {
     }
     let treeRes = buildHuffmanTree(fixedLitLengthCodeLength)
     fixedLitLengthTree = treeRes[0]
-    res.litLengthHuffmanCode = treeRes[1]
+    fixedLitLengthHuffmanCode = treeRes[1]
   }
   if(!fixedDistTree){
     for(let i = 0; i <= 31; i++){
@@ -179,11 +181,13 @@ const parseFixedHuffmanBlock = (res) => {
     }
     let treeRes = buildHuffmanTree(fixedDistCodeLength)
     fixedDistTree = treeRes[0]
-    res.distHuffmanCode = treeRes[1] 
+    fixedDistHuffmanCode = treeRes[1] 
   }
 
+  res.litLengthHuffmanCode = fixedLitLengthHuffmanCode
   res.litLengthCodeLength = fixedLitLengthCodeLength
   res.litLengthTree = fixedLitLengthTree
+  res.distHuffmanCode = fixedDistHuffmanCode
   res.distCodeLength = fixedDistCodeLength
   res.distTree = fixedDistTree
 

@@ -1,4 +1,4 @@
-import { Typography, Divider } from "antd";
+import { Typography, Divider, Statistic, Row, Col, Space } from "antd";
 import { FieldValueTable } from "../component/FieldValueTable";
 import ReactECharts from "echarts-for-react";
 import * as echarts from "echarts/core";
@@ -42,7 +42,7 @@ const huffmanTreeOption = (data, color = "#13acd9") => {
           },
         },
         itemStyle: {
-            color
+          color,
         },
         lineStyle: { curveness: 0 },
         animationDurationUpdate: 750,
@@ -112,63 +112,153 @@ const lengthDistributeOption = (data) => {
 };
 
 const distDistributeOption = (data) => {
-    return {
-      tooltip: {
-        trigger: "axis",
-        position: function (pt) {
-          return [pt[0], "10%"];
-        },
+  return {
+    tooltip: {
+      trigger: "axis",
+      position: function (pt) {
+        return [pt[0], "10%"];
       },
-      // title: {
-      //   left: "center",
-      //   text: "Large Area Chart",
-      // },
-      toolbox: {
-        feature: {
-          dataZoom: {
-            yAxisIndex: "none",
-          },
-          restore: {},
-          saveAsImage: {},
+    },
+    // title: {
+    //   left: "center",
+    //   text: "Large Area Chart",
+    // },
+    toolbox: {
+      feature: {
+        dataZoom: {
+          yAxisIndex: "none",
         },
+        restore: {},
+        saveAsImage: {},
       },
-      xAxis: {
-        type: "category",
-        boundaryGap: false,
-        data: data.map((v, k) => k),
+    },
+    xAxis: {
+      type: "category",
+      boundaryGap: false,
+      data: data.map((v, k) => k),
+    },
+    yAxis: {
+      type: "value",
+      boundaryGap: [0, "100%"],
+      max: "dataMax",
+      splitNumber: 5,
+    },
+    dataZoom: [
+      {
+        type: "inside",
+        startValue: 0,
+        endValue: 32768,
       },
-      yAxis: {
-        type: "value",
-        boundaryGap: [0, "100%"],
-        max: "dataMax",
-        splitNumber: 5,
+      {
+        start: 0,
+        end: 20,
       },
-      dataZoom: [
-        {
-          type: "inside",
-          startValue: 0,
-          endValue: 32,
-        },
-        {
-          start: 0,
-          end: 20,
-        },
-      ],
-      series: [
-        {
-          name: "Match Distance",
-          type: "bar",
-          symbol: "none",
-          sampling: "lttb",
-          itemStyle: {
-            color: "#118ab2",
-          },
-  
-          data: data,
-        },
-      ],
-    };
+    ],
+    series: [
+      {
+        name: "Match Distance",
+        type: "bar",
+        //symbol: "none",
+        //sampling: "lttb",
+        // itemStyle: {
+        //   color: "#118ab2",
+        // },
+        // itemStyle: {
+        //     color: 'rgb(255, 70, 131)'
+        //   },
+        //   lineStyle:{
+        //       width:0,
+        //       type:"solid"
+        //   },
+        //   areaStyle: {
+        //     color:'#000'
+        //   },
+        data: data,
+        large: true,
+      },
+    ],
   };
+};
+
+const matchHeatMapOption = (data) => {
+  let distMax = 0;
+  let lenMax = 0;
+  let plotData = [];
+  Object.keys(data).forEach((k) => {
+    let [_, len, dist] = k.split("_");
+    len = parseInt(len);
+    dist = parseInt(dist);
+    if (len > lenMax) {
+      lenMax = len;
+    }
+    if (dist > distMax) {
+      distMax = dist;
+    }
+    for (let i = 0; i < data[k]; i++) {
+      plotData.push([dist, len]);
+    }
+  });
+  let xData = [];
+  let yData = [];
+  for (let i = 0; i <= distMax; i++) {
+    xData.push(i);
+  }
+  for (let i = 0; i <= lenMax; i++) {
+    yData.push(i);
+  }
+
+  return {
+    tooltip: {
+      position: "top",
+    },
+    xAxis: {
+      name: "Distance",
+      nameLocation: "center",
+      nameTextStyle: { padding: 5 },
+    },
+    yAxis: {
+      name: "Length",
+      nameLocation: "center",
+      nameTextStyle: { padding: 10 },
+    },
+    dataZoom: [
+      {
+        type: "inside",
+        startValue: 0,
+        endValue: distMax,
+      },
+      {
+        type: "slider",
+        //showDataShadow: false,
+        //handleIcon:
+        //"path://M10.7,11.9v-1.3H9.3v1.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4v1.3h1.3v-1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,19.6H6.7v-1.4h6.6V19.6z",
+        //handleSize: "80%",
+      },
+      {
+        type: "inside",
+        orient: "vertical",
+        startValue: 0,
+        endValue: lenMax,
+      },
+      {
+        type: "slider",
+        orient: "vertical",
+        //showDataShadow: false,
+        //handleIcon:
+        //"path://M10.7,11.9v-1.3H9.3v1.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4v1.3h1.3v-1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,19.6H6.7v-1.4h6.6V19.6z",
+        //handleSize: "80%",
+      },
+    ],
+    series: [
+      {
+        symbolSize: 3,
+        data: plotData,
+        type: "scatter",
+        encode: { tooltip: [0, 1] },
+      },
+    ],
+  };
+};
 const BlockView = (props) => {
   console.log(props);
   let data = props.data;
@@ -176,6 +266,71 @@ const BlockView = (props) => {
   return (
     <Typography>
       <Title>{props.data.blockType}</Title>
+
+
+      {data.BTYPE !== 0 ? (
+        <>
+          <Title level={2}>Overview</Title>
+          <Row gutter={[16,16]}>
+            <Col span={8}>
+              <Statistic
+                title="Compressed Length (bytes)"
+                value={(data.compressedLength / 8).toFixed(2)}
+              />
+            </Col>
+            <Col span={8}>
+              <Statistic
+                title="Uncompressed Length (bytes)"
+                value={(data.uncompressedLength / 8).toFixed(0)}
+              />
+            </Col>
+            <Col span={8}>
+              <Statistic
+                title="Compression Ratio"
+                value={(data.uncompressedLength / data.compressedLength).toFixed(2)}
+              />
+            </Col>
+
+            <Col span={8}>
+              <Statistic
+                title="Match Length (bytes)"
+                value={data.matchLength}
+              />
+            </Col>
+            <Col span={8}>
+              <Statistic
+                title="Literal Length (bytes)"
+                value={data.literalLength}
+              />
+            </Col>
+            <Col span={8}>
+              <Statistic
+                title="Match Ratio"
+                value={(data.matchLength / (data.uncompressedLength/8) * 100).toFixed(2)}
+              />
+            </Col>
+
+            <Col span={8}>
+              <Statistic
+                title="Average Match Length"
+                value={(data.lengthDistribute.map((v, idx) => (v * idx)).reduce((a, b) => (a + b)) / data.lengthDistribute.reduce((a, b) => (a + b))).toFixed(2)}
+              />
+            </Col>
+            <Col span={8}>
+              <Statistic
+                title="Average Match Distance"
+                value={(data.distDistribute.map((v, idx) => (v * idx)).reduce((a, b) => (a + b)) / data.lengthDistribute.reduce((a, b) => (a + b))).toFixed(2)}
+              />
+            </Col>
+            <Col span={8}></Col> 
+
+          </Row>
+        </>
+      ) : (
+        <></>
+      )}
+
+
       <Title level={2}>Block Header</Title>
       <Paragraph>
         <FieldValueTable
@@ -185,6 +340,8 @@ const BlockView = (props) => {
           ]}
         />
       </Paragraph>
+
+      
 
       {data.BTYPE === 2 ? (
         <>
@@ -303,6 +460,14 @@ const BlockView = (props) => {
           <Paragraph>
             <ReactECharts
               option={distDistributeOption(data.distDistribute)}
+              style={{ height: "500px" }}
+            />
+          </Paragraph>
+
+          <Title level={2}>Match Length Distance Distribution</Title>
+          <Paragraph>
+            <ReactECharts
+              option={matchHeatMapOption(data.heatMap)}
               style={{ height: "500px" }}
             />
           </Paragraph>
