@@ -11,6 +11,15 @@ const huffmanTreeOption = (data, color = "#13acd9") => {
       trigger: "item",
       triggerOn: "mousemove",
     },
+    toolbox: {
+      feature: {
+        dataZoom: {
+          yAxisIndex: "none",
+        },
+        restore: {},
+        saveAsImage: {},
+      },
+    },
     series: [
       {
         type: "tree",
@@ -211,6 +220,15 @@ const matchHeatMapOption = (data) => {
     tooltip: {
       position: "top",
     },
+    toolbox: {
+        feature: {
+          dataZoom: {
+            yAxisIndex: "none",
+          },
+          restore: {},
+          saveAsImage: {},
+        },
+      },
     xAxis: {
       name: "Distance",
       nameLocation: "center",
@@ -267,11 +285,10 @@ const BlockView = (props) => {
     <Typography>
       <Title>{props.data.blockType}</Title>
 
-
+      <Title level={2}>Block Overview</Title>
       {data.BTYPE !== 0 ? (
         <>
-          <Title level={2}>Overview</Title>
-          <Row gutter={[16,16]}>
+          <Row gutter={[16, 16]}>
             <Col span={8}>
               <Statistic
                 title="Compressed Length (bytes)"
@@ -287,7 +304,9 @@ const BlockView = (props) => {
             <Col span={8}>
               <Statistic
                 title="Compression Ratio"
-                value={(data.uncompressedLength / data.compressedLength).toFixed(2)}
+                value={(
+                  data.uncompressedLength / data.compressedLength
+                ).toFixed(2)}
               />
             </Col>
 
@@ -306,30 +325,60 @@ const BlockView = (props) => {
             <Col span={8}>
               <Statistic
                 title="Match Ratio"
-                value={(data.matchLength / (data.uncompressedLength/8) * 100).toFixed(2)}
+                value={(
+                  (data.matchLength / (data.uncompressedLength / 8)) *
+                  100
+                ).toFixed(2)}
               />
             </Col>
 
             <Col span={8}>
               <Statistic
                 title="Average Match Length"
-                value={(data.lengthDistribute.map((v, idx) => (v * idx)).reduce((a, b) => (a + b)) / data.lengthDistribute.reduce((a, b) => (a + b))).toFixed(2)}
+                value={(
+                  data.lengthDistribute
+                    .map((v, idx) => v * idx)
+                    .reduce((a, b) => a + b) /
+                  data.lengthDistribute.reduce((a, b) => a + b)
+                ).toFixed(2)}
               />
             </Col>
             <Col span={8}>
               <Statistic
                 title="Average Match Distance"
-                value={(data.distDistribute.map((v, idx) => (v * idx)).reduce((a, b) => (a + b)) / data.lengthDistribute.reduce((a, b) => (a + b))).toFixed(2)}
+                value={(
+                  data.distDistribute
+                    .map((v, idx) => v * idx)
+                    .reduce((a, b) => a + b) /
+                  data.lengthDistribute.reduce((a, b) => a + b)
+                ).toFixed(2)}
               />
             </Col>
-            <Col span={8}></Col> 
-
+            <Col span={8}></Col>
           </Row>
         </>
       ) : (
-        <></>
-      )}
+        <>
+          <Row gutter={[16, 16]}>
+            <Col span={8}>
+              <Statistic
+                title="Uncompressed Length (bytes)"
+                value={(data.uncompressedLength / 8).toFixed(0)}
+              />
+            </Col>
+            <Col span={8}>
+              <Statistic
+                title="Compression Ratio"
+                value={(
+                  data.uncompressedLength / data.compressedLength
+                ).toFixed(2)}
+              />
+            </Col>
 
+            <Col span={8}></Col>
+          </Row>
+        </>
+      )}
 
       <Title level={2}>Block Header</Title>
       <Paragraph>
@@ -340,8 +389,6 @@ const BlockView = (props) => {
           ]}
         />
       </Paragraph>
-
-      
 
       {data.BTYPE === 2 ? (
         <>

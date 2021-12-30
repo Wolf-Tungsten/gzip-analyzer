@@ -140,7 +140,7 @@ const parseNoCompressionBlock = (res) => {
   fstream.alignToNextByte()
   res.LEN = fstream.getBytes(2)
   res.uncompressedLength = res.LEN * 8
-  res.compressedLength = res.LEN
+  res.compressedLength = res.LEN * 8
   console.log(res)
   fstream.getBytes(2)
   for(let i = 0;i < res.LEN; i++){
