@@ -74,11 +74,11 @@ const App = () => {
   const uploadProps = {
     showUploadList: false,
     beforeUpload: (file) => {
-      console.log(file.type);
-      if (file.type !== "application/x-gzip") {
+      console.log(file.type, file.type.toLowerCase().indexOf("gzip"));
+      if (file.type.toLowerCase().indexOf("gzip") === -1 ) {
         message.error(`${file.name} is not a gzip file`);
       }
-      return file.type === "application/x-gzip" ? false : Upload.LIST_IGNORE;
+      return (file.type.toLowerCase().indexOf("gzip") !== -1 ) ? false : Upload.LIST_IGNORE;
       //return Upload.LIST_IGNORE
     },
     onChange: (info) => {
