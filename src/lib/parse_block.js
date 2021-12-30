@@ -151,12 +151,12 @@ const decodeBlock = (res) => {
 
 const parseNoCompressionBlock = (res) => {
   res.blockType = "No Compression Block";
-  console.log("No Compression Block");
+  //console.log("No Compression Block");
   fstream.alignToNextByte();
   res.LEN = fstream.getBytes(2);
   res.uncompressedLength = res.LEN * 8;
   res.compressedLength = res.LEN * 8;
-  console.log(res);
+  //console.log(res);
   fstream.getBytes(2);
   for (let i = 0; i < res.LEN; i++) {
     fstream.getByte();
@@ -172,7 +172,7 @@ let fixedLitLengthCodeLength = [];
 let fixedDistCodeLength = [];
 const parseFixedHuffmanBlock = (res) => {
   res.blockType = "Fixed Huffman Block";
-  console.log("Fixed Huffman");
+  //console.log("Fixed Huffman");
   if (!fixedLitLengthTree) {
     // 构造 fixedLitLengthTree
     for (let i = 0; i <= 287; i++) {
@@ -211,7 +211,7 @@ const parseFixedHuffmanBlock = (res) => {
 
 const parseDynamicHuffmanBlock = (res) => {
   res.blockType = "Dynamic Huffman Block";
-  console.log("Dynamic Huffman");
+  //console.log("Dynamic Huffman");
   res.HLIT = fstream.getUintOf(5) + 257;
   res.HDIST = fstream.getUintOf(5) + 1;
   res.HCLEN = fstream.getUintOf(4) + 4;

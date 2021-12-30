@@ -5,7 +5,7 @@ const fstream = {
     headByte:0,
     headByteRemainBits:0,
     init:function(data){
-        console.log(data)
+        // console.log(data)
         this.data = new Uint8Array(data)
         this.reset()
     },

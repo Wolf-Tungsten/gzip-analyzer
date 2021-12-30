@@ -31,14 +31,16 @@ const { Title, Paragraph, Text, Link } = Typography;
 const { Header, Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
 
-const readFile = (f) =>
+const readFile = (f, setProgress) =>
   new Promise((resolve, reject) => {
     let fileReader = new FileReader();
 
     fileReader.onload = (evt) => {
       resolve(evt.target.result);
     };
-
+    fileReader.onprogress = (evt) => {
+      setProgress(evt.loaded / evt.total * 100)
+    }
     fileReader.readAsArrayBuffer(f);
   });
 
@@ -48,7 +50,8 @@ const App = () => {
   const [progress, setProgress] = useState(0);
   const [inflateResult, setInflateResult] = useState([]);
   const startWorkerProcess = async (gzFile) => {
-    let fileData = await readFile(gzFile);
+    
+    let fileData = await readFile(gzFile, setProgress);
     console.log(fileData);
     // 创建 worker
     setProgress(0.1);
@@ -137,7 +140,7 @@ const App = () => {
         ) : (
           <Row justify="center">
             <Space value="30">
-              <div style={{ width: 150 }}>
+              <div style={{ width: 250 }}>
                 <Progress
                   strokeColor={{
                     "0%": "#108ee9",
