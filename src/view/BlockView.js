@@ -1,4 +1,4 @@
-import { Typography, Divider, Statistic, Row, Col, Space } from "antd";
+import { Typography, Divider, Statistic, Row, Col, Space, Alert } from "antd";
 import { FieldValueTable } from "../component/FieldValueTable";
 import ReactECharts from "echarts-for-react";
 import * as echarts from "echarts/core";
@@ -221,14 +221,14 @@ const matchHeatMapOption = (data) => {
       position: "top",
     },
     toolbox: {
-        feature: {
-          dataZoom: {
-            yAxisIndex: "none",
-          },
-          restore: {},
-          saveAsImage: {},
+      feature: {
+        dataZoom: {
+          yAxisIndex: "none",
         },
+        restore: {},
+        saveAsImage: {},
       },
+    },
     xAxis: {
       name: "Distance",
       nameLocation: "center",
@@ -284,7 +284,16 @@ const BlockView = (props) => {
   return (
     <Typography>
       <Title>{props.data.blockType}</Title>
-
+      {data.error ? (
+        <Alert
+          message="Error"
+          description="An error occurred while decoding this block. Incomplete data presented. "
+          type="error"
+          showIcon
+        />
+      ) : (
+        <></>
+      )}
       <Title level={2}>Block Overview</Title>
       {data.BTYPE !== 0 ? (
         <>
@@ -324,11 +333,11 @@ const BlockView = (props) => {
             </Col>
             <Col span={8}>
               <Statistic
-                title="Match Ratio"
+                title="Match Coverage"
                 value={(
                   (data.matchLength / (data.uncompressedLength / 8)) *
                   100
-                ).toFixed(2)}
+                ).toFixed(2)+'%'}
               />
             </Col>
 
@@ -336,10 +345,7 @@ const BlockView = (props) => {
               <Statistic
                 title="Average Match Length"
                 value={(
-                  data.lengthDistribute
-                    .map((v, idx) => v * idx)
-                    .reduce((a, b) => a + b) /
-                  data.lengthDistribute.reduce((a, b) => a + b)
+                  data.averageLength
                 ).toFixed(2)}
               />
             </Col>
@@ -347,10 +353,7 @@ const BlockView = (props) => {
               <Statistic
                 title="Average Match Distance"
                 value={(
-                  data.distDistribute
-                    .map((v, idx) => v * idx)
-                    .reduce((a, b) => a + b) /
-                  data.lengthDistribute.reduce((a, b) => a + b)
+                  data.averageDist
                 ).toFixed(2)}
               />
             </Col>
