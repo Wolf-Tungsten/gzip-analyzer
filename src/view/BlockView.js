@@ -107,6 +107,65 @@ const lengthDistributeOption = (data) => {
     ],
   };
 };
+
+const distDistributeOption = (data) => {
+    return {
+      tooltip: {
+        trigger: "axis",
+        position: function (pt) {
+          return [pt[0], "10%"];
+        },
+      },
+      // title: {
+      //   left: "center",
+      //   text: "Large Area Chart",
+      // },
+      toolbox: {
+        feature: {
+          dataZoom: {
+            yAxisIndex: "none",
+          },
+          restore: {},
+          saveAsImage: {},
+        },
+      },
+      xAxis: {
+        type: "category",
+        boundaryGap: false,
+        data: data.map((v, k) => k),
+      },
+      yAxis: {
+        type: "value",
+        boundaryGap: [0, "100%"],
+        max: "dataMax",
+        splitNumber: 5,
+      },
+      dataZoom: [
+        {
+          type: "inside",
+          startValue: 0,
+          endValue: 32,
+        },
+        {
+          start: 0,
+          end: 20,
+        },
+      ],
+      series: [
+        {
+          name: "Match Distance",
+          type: "bar",
+          symbol: "none",
+          sampling: "lttb",
+          itemStyle: {
+            color: "#003049",
+          },
+  
+          data: data,
+        },
+      ],
+    };
+  };
 const BlockView = (props) => {
   console.log(props);
   let data = props.data;
@@ -188,7 +247,7 @@ const BlockView = (props) => {
           <Title level={3}>Literal and Length Huffman Code</Title>
           <Paragraph>
             <FieldValueTable
-              fieldTitle="Alphabet"
+              fieldTitle="Length Alphabet"
               valueTitle="Huffman Code"
               pagination={true}
               dataSource={data.litLengthHuffmanCode.map((elem) => {
@@ -214,7 +273,36 @@ const BlockView = (props) => {
             />
           </Paragraph>
 
-            {/** Distance */}
+          {/** Distance */}
+          <Title level={2}>Distance</Title>
+          <Title level={3}>Distance Huffman Code</Title>
+          <Paragraph>
+            <FieldValueTable
+              fieldTitle="Distance Alphabet"
+              valueTitle="Huffman Code"
+              pagination={true}
+              dataSource={data.distHuffmanCode.map((elem) => {
+                let res = {};
+                res.field = elem.alphabet;
+                res.value = elem.code;
+                return res;
+              })}
+            />
+          </Paragraph>
+          <Title level={3}>Distance Huffman Tree</Title>
+          <Paragraph>
+            <ReactECharts
+              option={huffmanTreeOption(data.distTree, "#f77f00")}
+              style={{ height: "500px" }}
+            />
+          </Paragraph>
+          <Title level={3}>Distance Distribution</Title>
+          <Paragraph>
+            <ReactECharts
+              option={distDistributeOption(data.distDistribute)}
+              style={{ height: "500px" }}
+            />
+          </Paragraph>
         </>
       ) : (
         <></>
