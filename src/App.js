@@ -42,6 +42,10 @@ const readFile = (f, setProgress) =>
     fileReader.onprogress = (evt) => {
       setProgress((evt.loaded / evt.total) * 100);
     };
+    fileReader.onerror = (evt) => {
+      console.log(evt)
+      //message.error(evt.target.error)
+    }
     fileReader.readAsArrayBuffer(f);
   });
 
@@ -54,6 +58,10 @@ const App = () => {
   const [inflateResult, setInflateResult] = useState([]);
   const [hasMore, setHasMore] = useState(false);
   const startWorkerProcess = async (gzFile) => {
+    if(gzFile.size >= 2 * 1024 * 1024 * 1024){
+      message.error("File size exceeding 2GB")
+      return
+    }
     setViewType("load");
     let fileData = await readFile(gzFile, setProgress);
     // 创建 worker
@@ -161,7 +169,7 @@ const App = () => {
           <span style={{ fontSize: 32 }}>🗜</span> Gzip Analyzer
         </div>
         <div className="version">
-          v1.1.0
+          v1.1.1
         </div>
         <Divider
           dashed={true}
