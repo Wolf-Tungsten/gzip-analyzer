@@ -46,6 +46,10 @@ const readFile = (f, setProgress) =>
       console.log(evt)
       //message.error(evt.target.error)
     }
+    if(f.size >= 1 * 1024 * 1024 * 1024){
+      f = f.slice(0, 1 * 1024 * 1024 * 1024)
+    }
+    console.log(f)
     fileReader.readAsArrayBuffer(f);
   });
 
@@ -58,9 +62,8 @@ const App = () => {
   const [inflateResult, setInflateResult] = useState([]);
   const [hasMore, setHasMore] = useState(false);
   const startWorkerProcess = async (gzFile) => {
-    if(gzFile.size >= 2 * 1024 * 1024 * 1024){
-      message.error("File size exceeding 2GB")
-      return
+    if(gzFile.size >= 1 * 1024 * 1024 * 1024){
+      message.warning({content:"The file size exceeds 1GB. The exceeding part will be truncated.", duration:15})
     }
     setViewType("load");
     let fileData = await readFile(gzFile, setProgress);
@@ -169,7 +172,7 @@ const App = () => {
           <span style={{ fontSize: 32 }}>🗜</span> Gzip Analyzer
         </div>
         <div className="version">
-          v1.1.1
+          v1.1.2
         </div>
         <Divider
           dashed={true}
