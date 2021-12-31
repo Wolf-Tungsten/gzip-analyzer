@@ -160,6 +160,9 @@ const App = () => {
         <div className="title">
           <span style={{ fontSize: 32 }}>🗜</span> Gzip Analyzer
         </div>
+        <div className="version">
+          v1.1.0
+        </div>
         <Divider
           dashed={true}
           style={{ borderColor: "rgba(255, 255, 255, 0.3)" }}
