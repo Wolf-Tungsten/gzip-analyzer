@@ -1,19 +1,19 @@
 {
   "files": {
     "main.css": "/gzip-analyzer/static/css/main.02e703ae.css",
-    "main.js": "/gzip-analyzer/static/js/main.0466f70a.js",
-    "static/js/598.e38d81dc.chunk.js": "/gzip-analyzer/static/js/598.e38d81dc.chunk.js",
+    "main.js": "/gzip-analyzer/static/js/main.8f12f4b6.js",
+    "static/js/598.e6caa5e5.chunk.js": "/gzip-analyzer/static/js/598.e6caa5e5.chunk.js",
     "static/js/881.9f518a10.chunk.js": "/gzip-analyzer/static/js/881.9f518a10.chunk.js",
     "static/js/923.453f35c0.chunk.js": "/gzip-analyzer/static/js/923.453f35c0.chunk.js",
     "index.html": "/gzip-analyzer/index.html",
     "main.02e703ae.css.map": "/gzip-analyzer/static/css/main.02e703ae.css.map",
-    "main.0466f70a.js.map": "/gzip-analyzer/static/js/main.0466f70a.js.map",
-    "598.e38d81dc.chunk.js.map": "/gzip-analyzer/static/js/598.e38d81dc.chunk.js.map",
+    "main.8f12f4b6.js.map": "/gzip-analyzer/static/js/main.8f12f4b6.js.map",
+    "598.e6caa5e5.chunk.js.map": "/gzip-analyzer/static/js/598.e6caa5e5.chunk.js.map",
     "881.9f518a10.chunk.js.map": "/gzip-analyzer/static/js/881.9f518a10.chunk.js.map",
     "923.453f35c0.chunk.js.map": "/gzip-analyzer/static/js/923.453f35c0.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.02e703ae.css",
-    "static/js/main.0466f70a.js"
+    "static/js/main.8f12f4b6.js"
   ]
 }

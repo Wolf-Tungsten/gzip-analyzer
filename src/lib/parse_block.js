@@ -254,10 +254,7 @@ const parseBlock = (res) => {
   } else if (res.BTYPE === 2) {
     parseDynamicHuffmanBlock(res);
   }
-  postMessage({
-    type: "INFLATE_PROGRESS",
-    payload: (fstream.headAddr / fstream.data.length) * 100,
-  });
+ 
 };
 
 export default parseBlock;

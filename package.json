@@ -1,7 +1,7 @@
 {
   "name": "gzip-analyzer",
-  "version": "1.0.0",
-  "private": true,
+  "version": "1.1.0",
+  "private": false,
   "homepage": "https://wolf-tungsten.github.io/gzip-analyzer/",
   "dependencies": {
     "@ant-design/icons": "^4.7.0",

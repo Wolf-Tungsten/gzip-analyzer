@@ -20,66 +20,6 @@ const HeaderView = (props) => {
       ) : (
         <></>
       )}
-      <Title level={2}>Member Overview</Title>
-      <>
-        <Row gutter={[16, 16]}>
-          <Col span={8}>
-            <Statistic
-              title="Compressed Length (bytes)"
-              value={(data.compressedLength / 8).toFixed(2)}
-            />
-          </Col>
-          <Col span={8}>
-            <Statistic
-              title="Uncompressed Length (bytes)"
-              value={(data.uncompressedLength / 8).toFixed(0)}
-            />
-          </Col>
-          <Col span={8}>
-            <Statistic
-              title="Compression Ratio"
-              value={(data.uncompressedLength / data.compressedLength).toFixed(
-                2
-              )}
-            />
-          </Col>
-
-          <Col span={8}>
-            <Statistic title="Match Length (bytes)" value={data.matchLength} />
-          </Col>
-          <Col span={8}>
-            <Statistic
-              title="Literal Length (bytes)"
-              value={data.literalLength}
-            />
-          </Col>
-          <Col span={8}>
-            <Statistic
-              title="Match Coverage"
-              value={
-                (
-                  (data.matchLength / (data.uncompressedLength / 8)) *
-                  100
-                ).toFixed(2) + "%"
-              }
-            />
-          </Col>
-
-          <Col span={8}>
-            <Statistic
-              title="Average Match Length"
-              value={data.averageLength.toFixed(2)}
-            />
-          </Col>
-          <Col span={8}>
-            <Statistic
-              title="Average Match Distance"
-              value={data.averageDist.toFixed(2)}
-            />
-          </Col>
-          <Col span={8}></Col>
-        </Row>
-      </>
       <Title level={2}>Header Field</Title>
       <Paragraph>
         <FieldValueTable

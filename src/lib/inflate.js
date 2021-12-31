@@ -73,9 +73,8 @@ const parseHeader = () => {
     if (res.FLG.FHCRC === 1) {
       res.HEADER_CRC16 = fstream.getBytes(2);
     }
-    
   } catch {
-      res.error = true
+    res.error = true;
   }
   return res;
 };
@@ -83,18 +82,19 @@ const parseHeader = () => {
 const parseBlocks = () => {
   let res = [];
 
-  while (1) {
-      let block = {};
-      try {
-        parseBlock(block)
-      } catch {
-        block.error = true
-      } 
-      res.push(block);
-      if (block.BFINAL || block.error) {
-        break;
-      }
+  for(let i = 0; i < 100; i++){
+    let block = {};
+    try {
+      parseBlock(block);
+    } catch {
+      block.error = true;
     }
+    res.push(block);
+    postMessage({type:"INFLATE_PROGRESS", payload:i+1})
+    if (block.BFINAL || block.error) {
+      break;
+    }
+  }
 
   return res;
 };
@@ -110,34 +110,75 @@ const parseTrailer = () => {
 
 const parseMember = () => {
   let res = {
-    error:false,
+    error: false,
     header: parseHeader(),
     blocks: parseBlocks(),
     trailer: parseTrailer(),
   };
-  res.error = (!!res.header.error) || (res.blocks.length === 0 || res.blocks[res.blocks.length - 1].error)
-  // 全局统计数据
-  res.header.uncompressedLength = res.blocks.map(b => b.uncompressedLength).reduce((a, b) => a + b)
-  res.header.compressedLength = res.blocks.map(b => b.compressedLength).reduce((a, b) => a + b)
-  let compressedBlocks = res.blocks.filter( b => (!b.error && (b.BTYPE !== 0)))
-  res.header.matchLength = compressedBlocks.map(b => b.matchLength).reduce((a, b) => a + b)
-  res.header.literalLength = compressedBlocks.map(b => b.literalLength).reduce((a, b) => a + b)
-  res.header.averageDist = compressedBlocks.map(b => b.averageDist).reduce((a, b) => a + b) / compressedBlocks.length
-  res.header.averageLength = compressedBlocks.map(b => b.averageLength).reduce((a, b) => a + b) / compressedBlocks.length 
+  res.error =
+    !!res.header.error ||
+    res.blocks.length === 0 ||
+    res.blocks[res.blocks.length - 1].error;
+
   return res;
 };
 
-const inflate = function (inputFileData) {
-  fstream.init(inputFileData);
-  let res = [];
-  while (!fstream.eof()) {
-    let m = parseMember()
-    res.push(m)
-    if(m.error){
-        break
-    }
+const overviewStatistic = (res) => {
+  // 全局统计数据
+  res.overview = {}
+  res.overview.uncompressedLength = res.blocks
+    .map((b) => b.uncompressedLength)
+    .reduce((a, b) => a + b);
+  res.overview.compressedLength = res.blocks
+    .map((b) => b.compressedLength)
+    .reduce((a, b) => a + b);
+  let compressedBlocks = res.blocks.filter((b) => !b.error && b.BTYPE !== 0);
+  res.overview.matchLength = compressedBlocks
+    .map((b) => b.matchLength)
+    .reduce((a, b) => a + b);
+  res.overview.literalLength = compressedBlocks
+    .map((b) => b.literalLength)
+    .reduce((a, b) => a + b);
+  res.overview.averageDist =
+    compressedBlocks.map((b) => b.averageDist).reduce((a, b) => a + b) /
+    compressedBlocks.length;
+  res.overview.averageLength =
+    compressedBlocks.map((b) => b.averageLength).reduce((a, b) => a + b) /
+    compressedBlocks.length;
+};
+
+const parseNewMember = () => {
+  let res = {
+    header: parseHeader(),
+  };
+  res.blocks = parseBlocks();
+  if (res.blocks[res.blocks.length - 1].BFINAL) {
+    res.trailer = parseTrailer();
+    overviewStatistic(res);
   }
   return res;
 };
 
-export { inflate };
+const continueOldMember = (oldMember) => {
+  oldMember.blocks = oldMember.blocks.concat(parseBlocks());
+  if (oldMember.blocks[oldMember.blocks.length - 1].BFINAL) {
+    oldMember.trailer = parseTrailer();
+    overviewStatistic(oldMember);
+  }
+};
+
+const inflate = function (res) {
+  if (res.length === 0 || (res[res.length - 1].trailer && !fstream.eof())) {
+    // 开始解码新的 member
+    res.push(parseNewMember());
+  } else {
+    // 继续解压旧的 member
+    continueOldMember(res[res.length - 1]);
+  }
+};
+
+const open = function (inputFileData) {
+  fstream.init(inputFileData);
+};
+
+export { inflate, open };
